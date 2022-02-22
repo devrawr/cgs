@@ -1,10 +1,9 @@
 package gg.scala.parties
 
-import gg.scala.cloudsync.shared.discovery.CloudSyncDiscoveryService
-import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.parties.service.PartyService
 import me.lucko.helper.plugin.ap.Plugin
 import me.lucko.helper.plugin.ap.PluginDependency
+import org.bukkit.plugin.java.JavaPlugin
 
 /**
  * @author GrowlyX
@@ -13,23 +12,13 @@ import me.lucko.helper.plugin.ap.PluginDependency
 @Plugin(
     name = "Parties",
     depends = [
-        PluginDependency("Cubed"),
         PluginDependency("helper"),
-        PluginDependency("Lemon"),
-        PluginDependency("store-spigot"),
-        PluginDependency("cloudsync")
     ]
 )
-class PartySpigotPlugin : ExtendedScalaPlugin()
+class PartySpigotPlugin : JavaPlugin()
 {
-    override fun enable()
+    override fun onEnable()
     {
-        invokeTrackedTask("party resources") {
-            PartyService.configure()
-        }
-
-        CloudSyncDiscoveryService
-            .discoverable.assets
-            .add("gg.scala.cgs:parties:cgs-parties")
+        PartyService.configure()
     }
 }

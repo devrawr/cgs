@@ -1,14 +1,11 @@
 package gg.scala.parties.service
 
 import gg.scala.parties.model.Party
-import gg.scala.store.controller.DataStoreObjectController
-import gg.scala.store.controller.DataStoreObjectControllerCache
-import gg.scala.store.storage.type.DataStoreStorageType
-import net.evilblock.cubed.serializers.Serializers
+import io.github.nosequel.data.DataHandler
+import io.github.nosequel.data.DataStoreType
 import org.bukkit.entity.Player
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import kotlin.properties.Delegates
 
 /**
  * @author GrowlyX
@@ -16,15 +13,9 @@ import kotlin.properties.Delegates
  */
 object PartyService
 {
-    var service by Delegates.notNull<DataStoreObjectController<Party>>()
+    val service = DataHandler.createStoreType<UUID, Party>(DataStoreType.REDIS)
 
     private val loadedParties = mutableMapOf<UUID, Party>()
-
-    fun configure()
-    {
-        service = DataStoreObjectControllerCache.create()
-        service.provideCustomSerializer(Serializers.gson)
-    }
 
     fun findPartyByLeader(uniqueId: UUID): Party?
     {
@@ -52,50 +43,42 @@ object PartyService
         if (loadedParties[uniqueId] == null)
             return
 
-        service
-            .loadAll(DataStoreStorageType.REDIS)
-            .thenAccept {
-                val found = it.values.firstOrNull { playerParty ->
-                    playerParty.uniqueId == uniqueId
-                }
+        service.retrieveAllAsync {
 
-                if (found != null)
-                {
-                    kotlin.run {
-                        loadedParties[found.uniqueId] = found
-                    }
+            if (it.uniqueId == uniqueId)
+            {
+                kotlin.run {
+                    loadedParties[it.uniqueId] = it; return@retrieveAllAsync
                 }
             }
+        }
     }
 
     fun loadPartyOfPlayerIfAbsent(player: Player): CompletableFuture<Party?>
     {
         val loadedParty = findPartyByUniqueId(player)
 
-        if (loadedParty != null)
+        return if (loadedParty != null)
         {
-            val completable = CompletableFuture<Party?>()
-            completable.complete(loadedParty)
-
-            return completable
+            return CompletableFuture<Party?>().apply {
+                this.complete(loadedParty)
+            }
         } else
         {
-            return service
-                .loadAll(DataStoreStorageType.REDIS)
-                .thenApply {
-                    val found = it.values.firstOrNull { playerParty ->
-                        playerParty.members.containsKey(player.uniqueId)
-                    }
+            CompletableFuture.supplyAsync {
+                var party: Party? = null
 
-                    if (found != null)
+                service.retrieveAllAsync {
+                    if (it.members.containsKey(player.uniqueId))
                     {
-                        kotlin.run {
-                            loadedParties[found.uniqueId] = found
-                        }
+                        loadedParties[it.uniqueId] = it
                     }
 
-                    return@thenApply found
+                    party = it
                 }
+
+                party
+            }
         }
     }
 }

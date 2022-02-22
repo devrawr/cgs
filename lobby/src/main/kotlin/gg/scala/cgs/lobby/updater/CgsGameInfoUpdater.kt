@@ -4,7 +4,6 @@ import gg.scala.cgs.common.instance.CgsServerInstance
 import gg.scala.cgs.common.instance.CgsServerType
 import gg.scala.cgs.common.instance.handler.CgsInstanceService
 import gg.scala.cgs.lobby.gamemode.CgsGameLobby
-import gg.scala.store.storage.type.DataStoreStorageType
 
 /**
  * @author GrowlyX
@@ -25,38 +24,35 @@ object CgsGameInfoUpdater : Thread("CGS - Instance Info Updater")
         try
         {
             val engine = CgsGameLobby.INSTANCE
-
-            val instances = CgsInstanceService.service
-                .loadAll(DataStoreStorageType.REDIS)
-                .join()
+            val instances = CgsInstanceService.service.retrieveAll()
 
             lobbies.clear()
             gameServers.clear()
 
             for (instance in instances)
             {
-                if (instance.value.type == CgsServerType.LOBBY)
+                if (instance.type == CgsServerType.LOBBY)
                 {
-                    lobbies.add(instance.value)
+                    lobbies.add(instance)
                 } else
                 {
-                    gameServers.add(instance.value)
+                    gameServers.add(instance)
                 }
             }
 
             for (gameMode in engine.getGameInfo().gameModes)
             {
-                gameModeCounts[gameMode.getId()] = instances.values
+                gameModeCounts[gameMode.getId()] = instances
                     .filter { it.type == CgsServerType.GAME_SERVER }
                     .filter { it.gameServerInfo!!.gameMode == gameMode.getId() }
                     .sumOf { it.gameServerInfo!!.participants.size }
             }
 
-            playingTotalCount = instances.values
+            playingTotalCount = instances
                 .filter { it.type == CgsServerType.GAME_SERVER }
                 .sumOf { it.gameServerInfo!!.participants.size }
 
-            playingTotalCount = instances.values
+            playingTotalCount = instances
                 .filter { it.type == CgsServerType.LOBBY }
                 .sumOf { it.online }
         } catch (e: Exception)

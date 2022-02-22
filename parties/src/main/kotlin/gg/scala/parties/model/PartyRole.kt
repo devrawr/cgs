@@ -1,6 +1,6 @@
 package gg.scala.parties.model
 
-import net.evilblock.cubed.util.CC
+import org.bukkit.ChatColor
 
 /**
  * @author GrowlyX
@@ -10,9 +10,9 @@ enum class PartyRole(
     val formatted: String
 )
 {
-    MEMBER("${CC.D_GRAY}Member"),
-    MODERATOR("${CC.D_GREEN}Mod"),
-    LEADER("${CC.GOLD}Leader");
+    MEMBER("${ChatColor.DARK_GRAY}Member"),
+    MODERATOR("${ChatColor.DARK_GREEN}Mod"),
+    LEADER("${ChatColor.GOLD}Leader");
 
     infix fun PartyRole.over(role: PartyRole): Boolean
     {

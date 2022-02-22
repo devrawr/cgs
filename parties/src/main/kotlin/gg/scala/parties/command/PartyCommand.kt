@@ -1,9 +1,9 @@
 package gg.scala.parties.command
 
-import net.evilblock.cubed.acf.BaseCommand
-import net.evilblock.cubed.acf.CommandHelp
-import net.evilblock.cubed.acf.annotation.Default
-import net.evilblock.cubed.acf.annotation.HelpCommand
+import co.aikar.commands.BaseCommand
+import co.aikar.commands.CommandHelp
+import co.aikar.commands.annotation.Default
+import co.aikar.commands.annotation.HelpCommand
 
 /**
  * @author GrowlyX

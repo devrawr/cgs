@@ -1,24 +1,17 @@
 package gg.scala.parties.receiver
 
-import gg.scala.banana.annotate.Subscribe
-import gg.scala.banana.message.Message
-import gg.scala.banana.subscribe.marker.BananaHandler
+import gg.scala.parties.model.Party
 import gg.scala.parties.service.PartyService
-import java.util.*
+import io.github.nosequel.data.DataHandler
+import io.github.nosequel.data.DataStoreType
 
 /**
  * @author GrowlyX
  * @since 12/2/2021
  */
-object PartyReceiverHandler : BananaHandler
+object PartyReceiverHandler
 {
-    @Subscribe("party-update")
-    fun onPartyUpdate(message: Message)
-    {
-        val uniqueId = UUID.fromString(
-            message["uniqueId"]
-        )
-
-        PartyService.reloadPartyByUniqueId(uniqueId)
+    val subscriber = DataHandler.createPubSubType<Party>(DataStoreType.REDIS, "party-update") {
+        PartyService.reloadPartyByUniqueId(it.uniqueId)
     }
 }

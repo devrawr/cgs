@@ -1,6 +1,7 @@
 package gg.scala.parties.model
 
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import java.util.*
 
 /**
@@ -14,7 +15,12 @@ class PartyMember(
 {
     fun sendMessage(message: String)
     {
-        Bukkit.getPlayer(uniqueId)?.sendMessage(message)
+        this.getPlayer()?.sendMessage(message)
+    }
+
+    fun getPlayer(): Player?
+    {
+        return Bukkit.getPlayer(uniqueId)
     }
 
     fun isOnline(): Boolean = Bukkit.getPlayer(uniqueId) != null

@@ -1,6 +1,6 @@
 package gg.scala.parties.model
 
-import net.evilblock.cubed.util.CC
+import org.bukkit.ChatColor
 
 /**
  * @author GrowlyX
@@ -10,6 +10,6 @@ enum class PartyStatus(
     val formatted: String
 )
 {
-    PUBLIC("${CC.GREEN}Public"),
-    PRIVATE("${CC.RED}Private")
+    PUBLIC("${ChatColor.GREEN}Public"),
+    PRIVATE("${ChatColor.RED}Private")
 }

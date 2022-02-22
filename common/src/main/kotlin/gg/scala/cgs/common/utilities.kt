@@ -1,48 +1,39 @@
 package gg.scala.cgs.common
 
-import gg.scala.grape.GrapeSpigotPlugin
-import gg.scala.lemon.Lemon
-import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.FancyMessage
-import net.evilblock.cubed.util.bukkit.Tasks
-import net.evilblock.cubed.util.nms.MinecraftReflection
+import gg.scala.cgs.common.util.EasyRunnable
 import net.kyori.adventure.audience.Audience
 import net.md_5.bungee.api.chat.ClickEvent
+import net.md_5.bungee.api.chat.ComponentBuilder
+import net.md_5.bungee.api.chat.HoverEvent
+import org.bukkit.ChatColor
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.PlayerDeathEvent
-import java.lang.reflect.Method
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
-import kotlin.reflect.KClass
-
 
 /**
  * @author GrowlyX
  * @since 12/2/2021
  */
-val startMessage by lazy {
-    FancyMessage().apply {
-        withMessage(
-            "",
-            " ${CC.B_PRI}${
-                CgsGameEngine.INSTANCE.gameInfo.fancyNameRender
-            } is currently in BETA!",
-            " ${CC.SEC}Remember, there may be bugs/incomplete features!",
-            "",
-            " ${CC.SEC}If you think you have found a bug, report it at:",
-            " ${CC.WHITE}${Lemon.instance.lemonWebData.discord}",
-            ""
-        )
-        andHoverOf(
-            "${CC.YELLOW}Click to join our discord server!"
-        )
-        andCommandOf(
+val startMessage = ComponentBuilder("\n")
+    .append("\n")
+    .append(" ${ChatColor.AQUA}${CgsGameEngine.INSTANCE.gameInfo.fancyNameRender} is currently in BETA!\n")
+    .append(" ${ChatColor.WHITE}Remember, there may be bugs/incomplete features!\n")
+    .append(" \n")
+    .append(" ${ChatColor.WHITE}If you think you have found a bug, report it at:")
+    .append(" ${ChatColor.WHITE}https://discord.gg/yourmom")
+    .event(
+        ClickEvent(
             ClickEvent.Action.OPEN_URL,
-            Lemon.instance.lemonWebData.discord
+            "https://discord.gg/yourmom"
         )
-    }
-}
+    )
+    .event(
+        HoverEvent(
+            HoverEvent.Action.SHOW_TEXT,
+            ComponentBuilder("${ChatColor.YELLOW}Click to join our discord server!").create()
+        )
+    )
+    .create()
 
 fun Exception.printStackTraceV2(
     rootedFrom: String = "N/A"
@@ -105,41 +96,9 @@ infix fun Player.adventure(lambda: (Audience) -> Unit)
         .player(this).apply(lambda)
 }
 
-infix fun Player.giveCoins(
-    information: Pair<Int, String>
-)
-{
-    val grapePlayer = GrapeSpigotPlugin.getInstance()
-        .playerHandler.getByPlayer(this)
-
-    if (grapePlayer != null)
-    {
-        grapePlayer.coins += information.first
-        sendMessage("${CC.GOLD}+${information.first} coins (${information.second})!")
-    }
-}
-
-val ENTITY_PLAYER = MinecraftReflection.getNMSClass("EntityPlayer")
-val MINECRAFT_SERVER = MinecraftReflection.getMinecraftServer()
-
-val PLAYER_LIST: Any = MINECRAFT_SERVER.javaClass
-    .getDeclaredMethod("getPlayerList")
-    .invoke(MINECRAFT_SERVER)
-
-val WORLD_MOVEMENT: Method = PLAYER_LIST.javaClass.getMethod(
-    "moveToWorld", ENTITY_PLAYER,
-    Int::class.javaPrimitiveType,
-    Boolean::class.javaPrimitiveType
-)
-
 fun respawnPlayer(event: PlayerDeathEvent)
 {
-    Tasks.delayed(2L)
-    {
-        WORLD_MOVEMENT.invoke(
-            PLAYER_LIST,
-            MinecraftReflection.getHandle(event.entity),
-            0, false
-        )
+    EasyRunnable.delayed(2L) {
+        event.entity.spigot().respawn()
     }
 }

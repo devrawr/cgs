@@ -10,8 +10,19 @@ When [@itsthreazy](https://twitter.com/itsthreazy) & I were working on PvPBar, w
 ## How do I use this?
 You'll need to do quite a bit of work on the project at its state right now to be able make it work. CGS heavily depends on several closed-source projects.
 
+## What is this fork?
+This fork is a project to make this version independent of all proprietary dependencies within the original project. Current progress:
+
+| sub-project | progress                                                 |
+|-------------|--------------------------------------------------------------|
+| parties     | done - untested                                              |
+| lobby       | done some work - depends on a hub core, to do: maybe rewrite |
+| game        | untouched                                                    |
+| common      | some changes, barely touched                                 |
+
 ## Authors:
 - GrowlyX
 - puugz (a few tweaks)
+- devrawr
 
 Have fun future scala-cgs users! ❤️❤️
